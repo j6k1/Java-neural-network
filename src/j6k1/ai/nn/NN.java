@@ -71,6 +71,11 @@ public class NN {
 
 	private <T> T apply(int[] input, IAfterProcess<T> after)
 	{
+		if(input.length != units[0].size - 1)
+		{
+			throw new InvalidStateException(
+				"The inputs to the input layer is invalid (the count of inputs must be the count of units -1)");
+		}
 		double[][] weighted = new double[units.length-1][];
 		double[][] output = new double[units.length-1][];
 
