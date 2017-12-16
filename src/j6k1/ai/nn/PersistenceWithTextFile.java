@@ -14,6 +14,7 @@ public class PersistenceWithTextFile implements IPersistence {
 	{
 		dst = file;
 	}
+
 	@Override
 	public boolean save(NN nn) {
 		try(FileOutputStream ostream = new FileOutputStream(dst, false);

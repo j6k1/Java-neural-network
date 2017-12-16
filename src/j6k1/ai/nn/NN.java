@@ -159,10 +159,6 @@ public class NN {
 					for(int k=0, kl=units[i-1].size; k < kl; k++)
 					{
 						nextdelta[j] = nextdelta[j] * weighted[i-1][k];
-					}
-
-					for(int k=0, kl=units[i-1].size; k < kl; k++)
-					{
 						layers[i-1][k][j] = this.layers[i-1][k][j] - 0.5 * nextdelta[j] * output[k][j];
 					}
 				}
