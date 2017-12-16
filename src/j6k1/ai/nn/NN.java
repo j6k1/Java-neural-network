@@ -74,7 +74,12 @@ public class NN {
 		double[][] weighted = new double[units.length-1][];
 		double[][] output = new double[units.length-1][];
 
-		for(int i=0, il=input.length; i < il; i++)
+		for(int j=0, jl=units[1].size; j < jl; j++)
+		{
+			weighted[0][j] += layers[0][0][j];
+		}
+
+		for(int i=1, il=input.length; i < il; i++)
 		{
 			for(int j=0, jl=units[1].size; j < jl; j++)
 			{
