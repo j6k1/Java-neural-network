@@ -11,11 +11,7 @@ public class NN {
 			throw new InvalidConfigurationException(
 					"Parameter of layer number of multilayer perceptron is incorrect (less than 3)");
 		}
-		else if(!(units[0].f instanceof FIdentity))
-		{
-			throw new InvalidConfigurationException(
-					"Activation functions other than FIdentity can not be specified for the input layer.");
-		}
+
 		this.units = units;
 
 		if(reader.sourceExists())
@@ -78,7 +74,9 @@ public class NN {
 		double[][] weighted = new double[units.length-1][];
 		double[][] output = new double[units.length-1][];
 
-		for(int j=0, jl=units[1].size; j < jl; j++)
+		weighted[0] = new double[units[0].size];
+
+		for(int j=0, jl=units[0].size; j < jl; j++)
 		{
 			weighted[0][j] += layers[0][0][j];
 		}
@@ -93,6 +91,7 @@ public class NN {
 
 		for(int i=1, il=units.length - 1; i < il; i++)
 		{
+			weighted[i] = new double[units[i].size];
 			output[i-1] = new double[units[i].size];
 
 			IActivateFunction f = units[i].f;
@@ -101,6 +100,8 @@ public class NN {
 			{
 				output[i-1][k] = f.apply(weighted[i-1][k]);
 			}
+
+			output[i] = new double[units[i+1].size];
 
 			for(int j=0, jl=units[i].size; j < jl; j++)
 			{
@@ -136,41 +137,60 @@ public class NN {
 			double[][][] layers = new double[units.length-1][][];
 			double[] delta = new double[units[units.length-1].size];
 
-			layers[units.length-2] = new double[units[units.length-1].size][];
+			for(int i=0, l = units.length-1; i < l; i++)
+			{
+				layers[i] = new double[units[i].size][];
+			}
 
 			IActivateFunction f = units[units.length-1].f;
+
+			for(int j=0,
+					l=layers.length-1,
+					kl=units[units.length-1].size,
+					jl=units[units.length-2].size; j < jl; j++)
+			{
+				layers[l][j] = new double[kl];
+			}
 
 			for(int j=0,
 					wl=weighted.length,
 					cl=layers.length-1,
 					ol=output.length-1,
-					jl=units[units.length-1].size; j < jl; j++)
+					ul=units.length,
+					jl=units[ul-1].size; j < jl; j++)
 			{
 				delta[j] = (result[j] - t[j]) * f.derive(weighted[wl-1][j]);
 
 				for(int k=0, kl=units[units.length-2].size; k < kl; k++)
 				{
-					layers[cl][k][j] = this.layers[cl][k][j] - 0.5 * delta[j] * output[ol][k];
+					layers[cl][k][j] = this.layers[cl][k][j] - 0.5 * delta[j] * output[ol][j];
 				}
 			}
 
 			for(int i=units.length - 1; i >= 1; i--)
 			{
-				double[] nextdelta = new double[i-1];
+				double[] nextdelta = new double[units[i-1].size];
 
-				for(int j=0, jl=units[i].size; j < jl; j++)
+				for(int j=0, jl=units[i-1].size; j < jl; j++)
 				{
-					for(int k=0, kl=units[i-1].size; k < kl; k++)
+					layers[i-1][j] = new double[units[i].size];
+				}
+
+				for(int k=0, kl=units[i].size; k < kl; k++)
+				{
+					for(int j=0, jl=units[i-1].size; j < jl; j++)
 					{
-						nextdelta[j] += this.layers[i-1][j][k] * delta[j];
+						nextdelta[k] += this.layers[i-1][j][k] * delta[k];
 					}
 
-					for(int k=0, kl=units[i-1].size; k < kl; k++)
+					for(int j=0, jl=units[i].size; j < jl; j++)
 					{
-						nextdelta[j] = nextdelta[j] * weighted[i-1][k];
-						layers[i-1][k][j] = this.layers[i-1][k][j] - 0.5 * nextdelta[j] * output[k][j];
+						nextdelta[k] = nextdelta[k] * weighted[i-1][j];
+						layers[i-1][k][j] = this.layers[i-1][k][j] - 0.5 * nextdelta[k] * output[i-1][k];
 					}
 				}
+
+				delta = nextdelta;
 			}
 
 			return new NN(units, layers);
