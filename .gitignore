@@ -5,6 +5,7 @@
 *.ear
 
 # Eclipse
+.project
 .classpath
 .settings
 
