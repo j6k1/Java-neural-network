@@ -1,7 +1,5 @@
 package j6k1.ai.nn;
 
-import java.util.Arrays;
-
 public class NN {
 	private final NNUnit[] units;
 	private final double[][][] layers;
@@ -76,6 +74,7 @@ public class NN {
 			throw new InvalidStateException(
 				"The inputs to the input layer is invalid (the count of inputs must be the count of units -1)");
 		}
+
 		double[][] weighted = new double[units.length-1][];
 		double[][] output = new double[units.length-1][];
 
