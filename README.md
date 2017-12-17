@@ -1,6 +1,6 @@
 # Java-neural-network
 
-##使い方
+## 使い方
 
 ```
 NN nn = new NN(new NNUnit[] {
