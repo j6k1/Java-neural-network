@@ -50,12 +50,25 @@ public class NN {
 		}
 		else
 		{
-			for(int i=0, l=this.layers.length; i < l; i++)
+			for(int i=0, il=this.layers.length; i < il; i++)
 			{
 				if(units[i].size != this.layers[i].length)
 				{
 					throw new InvalidConfigurationException(
 							"The units count do not match. (correct size = " + units[i].size + ", size = " + this.layers[i].length + ")");
+				}
+
+				for(int j=0, jl=units[i].size; j < jl; j++)
+				{
+					if(this.layers[i][j].length != units[i+1].size)
+					{
+						throw new InvalidConfigurationException(
+							String.format(
+								"Weight %d is defined for unit %d in layer %d, but this does not match the number of units in the lower layer.",
+								this.layers[i][j].length, i, units[i+1].size
+							)
+						);
+					}
 				}
 			}
 		}
