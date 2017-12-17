@@ -80,14 +80,14 @@ public class NN {
 
 		weighted[0] = new double[units[0].size];
 
-		for(int k=0, kl=units[1].size; k < kl; k++)
+		for(int k=1, kl=units[1].size; k < kl; k++)
 		{
 			weighted[0][k] += layers[0][0][k];
 		}
 
 		for(int j=1, jl=units[0].size; j < jl; j++)
 		{
-			for(int k=0, kl=units[1].size; k < kl; k++)
+			for(int k=1, kl=units[1].size; k < kl; k++)
 			{
 				weighted[0][k] += input[j-1] * layers[0][j][k];
 			}
@@ -100,17 +100,17 @@ public class NN {
 			weighted[i+1] = new double[units[i+1].size];
 			IActivateFunction f = units[i].f;
 
-			for(int j=1, jl = units[i].size; j < jl; j++)
+			for(int j=0, jl = units[i].size; j < jl; j++)
 			{
 				output[i][j] = f.apply(weighted[i][j]);
 			}
 
 			output[i+1] = new double[units[i+1].size];
 
-			for(int k=0, kl=units[i+1].size; k < kl; k++)
+			for(int k=1, kl = units[i+1].size; k < kl; k++)
 			{
-				output[i+1][k] += layers[i][0][k];
-				weighted[i+1][k] = output[i][k];
+				output[i+1][k] += output[i][0] * layers[i][0][k];
+				weighted[i+1][k] = output[i+1][k];
 			}
 
 			for(int j=1, jl=units[i].size; j < jl; j++)
@@ -193,12 +193,14 @@ public class NN {
 
 				for(int k=0, kl=units[i].size; k < kl; k++)
 				{
-					for(int j=0, jl=units[i-1].size; j < jl; j++)
+					for(int j=1, jl=units[i-1].size; j < jl; j++)
 					{
 						nextdelta[j] += this.layers[i-1][j][k] * delta[k];
 					}
 
-					for(int j=0, jl=units[i-1].size; j < jl; j++)
+					layers[i-1][0][k] = this.layers[i-1][0][k] - 0.5 * nextdelta[k];
+
+					for(int j=1, jl=units[i-1].size; j < jl; j++)
 					{
 						nextdelta[j] = nextdelta[j] * f.derive(weighted[i-1][j]);
 						layers[i-1][j][k] = this.layers[i-1][j][k] - 0.5 * nextdelta[k];
