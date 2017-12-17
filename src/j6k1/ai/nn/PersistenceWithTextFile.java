@@ -22,11 +22,11 @@ public class PersistenceWithTextFile implements IPersistence {
 				BufferedWriter writer = new BufferedWriter(swriter)) {
 			double[][][] layers = nn.getClonedLayers();
 
-			writer.write("#Java NN config start.");
+			writer.write("#Java NN config start.\n");
 
 			for(int i=0, il=layers.length; i < il; i++)
 			{
-				writer.write("#layer: " + (i - 1));
+				writer.write("#layer: " + (i - 1) + "\n");
 
 				for(int j=0, jl=layers[i].length; j < jl; j++)
 				{
@@ -38,7 +38,7 @@ public class PersistenceWithTextFile implements IPersistence {
 				}
 			}
 
-			writer.write("#endofile.");
+			writer.write("#endofile.\n");
 			writer.flush();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
