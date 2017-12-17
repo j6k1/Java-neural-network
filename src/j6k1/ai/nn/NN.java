@@ -193,16 +193,14 @@ public class NN {
 
 				for(int k=0, kl=units[i].size; k < kl; k++)
 				{
-					for(int j=1, jl=units[i-1].size; j < jl; j++)
+					for(int j=0, jl=units[i-1].size; j < jl; j++)
 					{
 						nextdelta[j] += this.layers[i-1][j][k] * delta[k];
 					}
 
-					layers[i-1][0][k] = this.layers[i-1][0][k] - 0.5 * nextdelta[k];
-
-					for(int j=1, jl=units[i-1].size; j < jl; j++)
+					for(int j=0, jl=units[i-1].size; j < jl; j++)
 					{
-						nextdelta[j] = nextdelta[j] * f.derive(weighted[i-1][j]);
+						nextdelta[j] = nextdelta[j] * f.derive(weighted[i-1][k]);
 						layers[i-1][j][k] = this.layers[i-1][j][k] - 0.5 * nextdelta[k];
 					}
 				}
