@@ -26,7 +26,7 @@ public class PersistenceWithTextFile implements IPersistence {
 
 			for(int i=0, il=layers.length; i < il; i++)
 			{
-				writer.write("#layer: " + (i - 1) + "\n");
+				writer.write("#layer: " + i + "\n");
 
 				for(int j=0, jl=layers[i].length; j < jl; j++)
 				{
