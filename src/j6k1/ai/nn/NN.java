@@ -11,7 +11,11 @@ public class NN {
 			throw new InvalidConfigurationException(
 					"Parameter of layer number of multilayer perceptron is incorrect (less than 3)");
 		}
-
+		else if(!(units[0].f instanceof FIdentity))
+		{
+			throw new InvalidConfigurationException(
+					"Activation functions other than FIdentity can not be specified for the input layer.");
+		}
 		this.units = units;
 
 		if(reader.sourceExists())
