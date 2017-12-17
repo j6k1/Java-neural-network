@@ -189,12 +189,12 @@ public class NN {
 				{
 					for(int j=0, jl=units[i-1].size; j < jl; j++)
 					{
-						nextdelta[k] += this.layers[i-1][j][k] * delta[k];
+						nextdelta[j] += this.layers[i-1][j][k] * delta[k];
 					}
 
 					for(int j=0, jl=units[i-1].size; j < jl; j++)
 					{
-						nextdelta[k] = nextdelta[k] * f.derive(weighted[i-1][j]);
+						nextdelta[j] = nextdelta[j] * f.derive(weighted[i-1][j]);
 						layers[i-1][j][k] = this.layers[i-1][j][k] - 0.5 * nextdelta[k];
 					}
 				}
