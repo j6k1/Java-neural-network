@@ -85,11 +85,11 @@ public class NN {
 			weighted[0][k] += layers[0][0][k];
 		}
 
-		for(int j=1, jl=input.length; j < jl; j++)
+		for(int j=1, jl=units[0].size; j < jl; j++)
 		{
 			for(int k=0, kl=units[1].size; k < kl; k++)
 			{
-				weighted[0][k] += input[j] * layers[0][j][k];
+				weighted[0][k] += input[j-1] * layers[0][j][k];
 			}
 		}
 
