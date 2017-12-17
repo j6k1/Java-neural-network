@@ -213,7 +213,7 @@ public class NN {
 			{
 				layers[i][j] = new double[this.layers[i][j].length];
 
-				for(int k=0, kl=this.layers.length; k < kl; k++)
+				for(int k=0, kl=this.layers[i][j].length; k < kl; k++)
 				{
 					layers[i][j][k] = this.layers[i][j][k];
 				}
