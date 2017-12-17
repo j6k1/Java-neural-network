@@ -141,6 +141,12 @@ public class NN {
 
 	public NN learn(int[] input, double[] t)
 	{
+		if(t.length != units[units.length-1].size)
+		{
+			throw new InvalidStateException(
+				"The number of answers input does not match the number of output units. You must enter data of the same count.");
+		}
+
 		return apply(input, (result, output, weighted) -> {
 
 			double[][][] layers = new double[units.length-1][][];
