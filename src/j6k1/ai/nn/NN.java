@@ -75,8 +75,8 @@ public class NN {
 				"The inputs to the input layer is invalid (the count of inputs must be the count of units -1)");
 		}
 
-		double[][] weighted = new double[units.length-1][];
-		double[][] output = new double[units.length-1][];
+		double[][] weighted = new double[units.length][];
+		double[][] output = new double[units.length][];
 
 		weighted[0] = new double[units[0].size];
 
@@ -95,25 +95,30 @@ public class NN {
 
 		output[0] = new double[units[0].size];
 
-		for(int i=1, il=units.length - 1; i < il; i++)
+		for(int i=0, il=units.length - 1; i < il; i++)
 		{
-			weighted[i] = new double[units[i].size];
+			weighted[i+1] = new double[units[i+1].size];
 			IActivateFunction f = units[i].f;
 
-			for(int k=1, kl = units[i].size; k < kl; k++)
+			for(int j=1, jl = units[i].size; j < jl; j++)
 			{
-				output[i-1][k] = f.apply(weighted[i-1][k]);
+				output[i][j] = f.apply(weighted[i][j]);
 			}
 
-			output[i] = new double[units[i].size];
+			output[i+1] = new double[units[i+1].size];
 
-			for(int j=0, jl=units[i].size; j < jl; j++)
+			for(int k=0, kl=units[i+1].size; k < kl; k++)
 			{
-				output[i][0] += layers[i][j][0];
+				output[i+1][k] += layers[i][0][k];
+				weighted[i+1][k] = output[i][k];
+			}
 
+			for(int j=1, jl=units[i].size; j < jl; j++)
+			{
 				for(int k=1, kl = units[i+1].size; k < kl; k++)
 				{
-					output[i][k] += output[i-1][j] * layers[i][j][k];
+					output[i+1][k] += output[i][j] * layers[i][j][k];
+					weighted[i+1][k] = output[i+1][k];
 				}
 			}
 		}
@@ -189,8 +194,8 @@ public class NN {
 
 					for(int j=0, jl=units[i-1].size; j < jl; j++)
 					{
-						nextdelta[k] = nextdelta[k] * weighted[i-1][j];
-						layers[i-1][j][k] = this.layers[i-1][j][k] - 0.5 * nextdelta[k] * output[i-1][k];
+						nextdelta[k] = nextdelta[k] * f.derive(weighted[i-1][j]);
+						layers[i-1][j][k] = this.layers[i-1][j][k] - 0.5 * nextdelta[k];
 					}
 				}
 
