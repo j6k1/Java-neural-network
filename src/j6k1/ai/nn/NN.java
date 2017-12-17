@@ -126,9 +126,17 @@ public class NN {
 		double[] result = new double[units[units.length-1].size];
 		IActivateFunction f = units[units.length-1].f;
 
-		for(int j=0, jl=units[units.length-1].size, ll=output.length-1; j < jl; j++)
+		for(int j=0, l=units.length, jl=units[units.length-2].size; j < jl; j++)
 		{
-			result[j] = f.apply(output[ll][j]);
+			output[l-1] = new double[units[l-1].size];
+			weighted[l-1] = new double[units[l-1].size];
+
+			for(int k=0, kl = units[units.length-1].size; k < kl; k++)
+			{
+				output[l-1][k] += output[l-2][j] * layers[l-2][j][k];
+				weighted[l-1][k] = output[l-1][k];
+				result[k] = f.apply(weighted[l-1][k]);
+			}
 		}
 
 		return after.apply(result, output, weighted);
