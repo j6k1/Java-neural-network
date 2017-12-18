@@ -223,11 +223,9 @@ public class NN {
 
 				for(int j=0, jl=units[i].size; j < jl; j++)
 				{
-					layers[i-1][j] = new double[units[i-1].size];
-
 					for(int k=0, kl=units[i+1].size; k < kl; k++)
 					{
-						nextdelta[j] += this.layers[i-1][j][k] * delta[k];
+						nextdelta[j] += this.layers[i][j][k] * delta[k];
 					}
 
 					nextdelta[j] = nextdelta[j] * f.derive(weighted[i][j]);
