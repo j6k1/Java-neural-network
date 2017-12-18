@@ -98,24 +98,33 @@ public class NN {
 		double[][] weighted = new double[units.length][];
 		double[][] output = new double[units.length][];
 
-		weighted[0] = new double[units[0].size];
+		output[0] = new double[units[0].size];
+
+		output[0][0] = 1.0;
+
+		for(int j=1, jl=units[0].size; j < jl; j++)
+		{
+			output[0][j] = (double)input[j-1];
+		}
+
+		weighted[1] = new double[units[1].size];
 
 		for(int k=1, kl=units[1].size; k < kl; k++)
 		{
-			weighted[0][k] += layers[0][0][k];
+			weighted[1][k] += layers[0][0][k];
 		}
 
 		for(int j=1, jl=units[0].size; j < jl; j++)
 		{
 			for(int k=1, kl=units[1].size; k < kl; k++)
 			{
-				weighted[0][k] += input[j-1] * layers[0][j][k];
+				weighted[1][k] += input[j-1] * layers[0][j][k];
 			}
 		}
 
-		output[0] = new double[units[0].size];
+		output[1] = new double[units[1].size];
 
-		for(int i=0, il=units.length - 1; i < il; i++)
+		for(int i=1, il=units.length - 1; i < il; i++)
 		{
 			weighted[i+1] = new double[units[i+1].size];
 			IActivateFunction f = units[i].f;
