@@ -223,7 +223,7 @@ public class NN {
 
 					for(int n=0, nl=units[i-1].size; n < nl; n++)
 					{
-						layers[i-1][n][j] = this.layers[i-1][n][j] - 0.5 * nextdelta[j];
+						layers[i-1][n][j] = this.layers[i-1][n][j] - 0.5 * nextdelta[j]* output[i-1][n];
 					}
 				}
 
