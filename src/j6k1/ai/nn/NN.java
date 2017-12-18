@@ -60,7 +60,14 @@ public class NN {
 
 				for(int j=0, jl=units[i].size; j < jl; j++)
 				{
-					if(this.layers[i][j].length != units[i+1].size)
+					if(this.layers[i][j] == null)
+					{
+						throw new InvalidConfigurationException(
+							String.format("Reference to unit %d of layer %d is null.",
+								j, i
+							));
+					}
+					else if(this.layers[i][j].length != units[i+1].size)
 					{
 						throw new InvalidConfigurationException(
 							String.format(
