@@ -203,6 +203,8 @@ public class NN {
 
 			for(int i=units.length - 2; i >= 1; i--)
 			{
+				f = units[i].f;
+
 				double[] nextdelta = new double[units[i].size];
 
 				for(int n=0, nl=units[i-1].size; n < nl; n++)
