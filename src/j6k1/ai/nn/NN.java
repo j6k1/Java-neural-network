@@ -127,13 +127,7 @@ public class NN {
 
 			output[i+1] = new double[units[i+1].size];
 
-			for(int k=1, kl = units[i+1].size; k < kl; k++)
-			{
-				output[i+1][k] += output[i][0] * layers[i][0][k];
-				weighted[i+1][k] = output[i+1][k];
-			}
-
-			for(int j=1, jl=units[i].size; j < jl; j++)
+			for(int j=0, jl=units[i].size; j < jl; j++)
 			{
 				for(int k=1, kl = units[i+1].size; k < kl; k++)
 				{
@@ -197,8 +191,8 @@ public class NN {
 
 			for(int k=0,
 					wl=weighted.length,
-					cl=layers.length-1,
-					ol=output.length-1,
+					cl=layers.length,
+					ol=output.length,
 					ul=units.length,
 					kl=units[ul-1].size; k < kl; k++)
 			{
@@ -206,7 +200,7 @@ public class NN {
 
 				for(int j=0, jl=units[units.length-2].size; j < jl; j++)
 				{
-					layers[cl][j][k] = this.layers[cl][j][k] - 0.5 * delta[k] * output[ol][k];
+					layers[cl-1][j][k] = this.layers[cl-1][j][k] - 0.5 * delta[k] * output[ol-2][j];
 				}
 			}
 
