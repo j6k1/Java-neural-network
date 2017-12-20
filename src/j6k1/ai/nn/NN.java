@@ -95,79 +95,78 @@ public class NN {
 				"The inputs to the input layer is invalid (the count of inputs must be the count of units -1)");
 		}
 
-		double[][] weighted = new double[units.length][];
-		double[][] output = new double[units.length][];
+		double[][] u = new double[units.length][];
+		double[][] o = new double[units.length][];
 
-		output[0] = new double[units[0].size];
+		o[0] = new double[units[0].size];
 
-		output[0][0] = 1.0;
+		o[0][0] = 1.0;
 
-		for(int j=1, jl=units[0].size; j < jl; j++)
+		for(int j=1, J=units[0].size; j < J; j++)
 		{
-			output[0][j] = (double)input[j-1];
+			o[0][j] = (double)input[j-1];
 		}
 
-		weighted[1] = new double[units[1].size];
+		u[1] = new double[units[1].size];
 
-		for(int k=1, kl=units[1].size; k < kl; k++)
+		for(int k=1, K=units[1].size; k < K; k++)
 		{
-			weighted[1][k] += layers[0][0][k];
+			u[1][k] += layers[0][0][k];
 		}
 
-		for(int j=1, jl=units[0].size; j < jl; j++)
+		for(int j=1, J=units[0].size; j < J; j++)
 		{
-			for(int k=1, kl=units[1].size; k < kl; k++)
+			for(int k=1, K=units[1].size; k < K; k++)
 			{
-				weighted[1][k] += input[j-1] * layers[0][j][k];
+				u[1][k] += input[j-1] * layers[0][j][k];
 			}
 		}
 
-		output[1] = new double[units[1].size];
+		o[1] = new double[units[1].size];
 
-		for(int i=1, il=units.length - 1; i < il; i++)
+		for(int l=1, L=units.length - 1; l < L; l++)
 		{
-			weighted[i+1] = new double[units[i+1].size];
-			IActivateFunction f = units[i].f;
+			final int ll = l + 1;
 
-			for(int j=0, jl = units[i].size; j < jl; j++)
+			u[ll] = new double[units[ll].size];
+			IActivateFunction f = units[l].f;
+
+			for(int j=0, J = units[l].size; j < J; j++)
 			{
-				output[i][j] = f.apply(weighted[i][j]);
+				o[l][j] = f.apply(u[l][j]);
 			}
 
-			output[i+1] = new double[units[i+1].size];
+			o[ll] = new double[units[ll].size];
 
-			for(int j=0, jl=units[i].size; j < jl; j++)
+			for(int k=1, K = units[ll].size; k < K; k++)
 			{
-				for(int k=1, kl = units[i+1].size; k < kl; k++)
+				u[ll][k] = o[ll][k] += layers[l][0][k];
+			}
+
+			for(int j=1, J=units[l].size; j < J; j++)
+			{
+				for(int k=1, K = units[ll].size; k < K; k++)
 				{
-					output[i+1][k] += output[i][j] * layers[i][j][k];
-					weighted[i+1][k] = output[i+1][k];
+					u[ll][k] = o[ll][k] += o[l][j] * layers[l][j][k];
 				}
 			}
 		}
 
-		double[] result = new double[units[units.length-1].size];
+		double[] r = new double[units[units.length-1].size];
+
 		IActivateFunction f = units[units.length-1].f;
 
-		for(int j=0, l=units.length, jl=units[units.length-2].size; j < jl; j++)
+		for(int j=0, l=units.length-1, J=units[units.length-1].size; j < J; j++)
 		{
-			output[l-1] = new double[units[l-1].size];
-			weighted[l-1] = new double[units[l-1].size];
-
-			for(int k=0, kl = units[units.length-1].size; k < kl; k++)
-			{
-				output[l-1][k] += output[l-2][j] * layers[l-2][j][k];
-				weighted[l-1][k] = output[l-1][k];
-				result[k] = f.apply(weighted[l-1][k]);
-			}
+			r[j] = o[l][j] = f.apply(u[l][j]);
 		}
 
-		return after.apply(result, output, weighted);
+		return after.apply(r, o, u);
 	}
 
 	public double[] solve(int[] input)
 	{
-		return apply(input, (result, output, weighted) -> new DoubleArray(result)).arr;
+		return apply(input, (r, o, u) -> new DoubleArray(r)).arr;
 	}
 
 	public NN learn(int[] input, double[] t)
@@ -178,65 +177,66 @@ public class NN {
 				"The number of answers input does not match the number of output units. You must enter data of the same count.");
 		}
 
-		return apply(input, (result, output, weighted) -> {
+		return apply(input, (r, o, u) -> {
 
 			double[][][] layers = new double[units.length-1][][];
-			double[] delta = new double[units[units.length-1].size];
+			double[] d = new double[units[units.length-1].size];
 
-			for(int i=0, l = units.length-1; i < l; i++)
+			for(int l=0, L = units.length-1; l < L; l++)
 			{
-				layers[i] = new double[units[i].size][];
+				layers[l] = new double[units[l].size][];
 			}
 
 			IActivateFunction f = units[units.length-1].f;
 
-			for(int j=0,
-					l=units.length-2,
-					kl=units[units.length-1].size,
-					jl=units[units.length-2].size; j < jl; j++)
+			for(int j=0, hl=units.length-2, l=units[hl+1].size, J=units[hl].size; j < J; j++)
 			{
-				layers[l][j] = new double[kl];
+				layers[hl][j] = new double[l];
 			}
 
 			for(int k=0,
-					ul=units.length,
-					kl=units[ul-1].size; k < kl; k++)
+					hl=units.length-2,
+					l=units.length-1,
+					K=units[l].size; k < K; k++)
 			{
-				delta[k] = (result[k] - t[k]) * f.derive(weighted[ul-1][k]);
+				d[k] = (r[k] - t[k]) * f.derive(u[l][k]);
 
-				for(int j=0, jl=units[units.length-2].size; j < jl; j++)
+				for(int j=0, J=units[hl].size; j < J; j++)
 				{
-					layers[ul-2][j][k] = this.layers[ul-2][j][k] - 0.5 * delta[k] * output[ul-2][j];
+					layers[hl][j][k] = this.layers[hl][j][k] - 0.5 * d[k] * o[hl][j];
 				}
 			}
 
-			for(int i=units.length - 2; i >= 1; i--)
+			for(int l=units.length - 2; l >= 1; l--)
 			{
-				f = units[i].f;
+				final int hl = l - 1;
+				final int ll = l + 1;
 
-				double[] nextdelta = new double[units[i].size];
+				f = units[l].f;
 
-				for(int n=0, nl=units[i-1].size; n < nl; n++)
+				double[] nd = new double[units[l].size];
+
+				for(int i=0, I=units[hl].size; i < I; i++)
 				{
-					layers[i-1][n] = new double[units[i].size];
+					layers[hl][i] = new double[units[l].size];
 				}
 
-				for(int j=0, jl=units[i].size; j < jl; j++)
+				for(int j=0, J=units[l].size; j < J; j++)
 				{
-					for(int k=0, kl=units[i+1].size; k < kl; k++)
+					for(int k=0, K=units[ll].size; k < K; k++)
 					{
-						nextdelta[j] += this.layers[i][j][k] * delta[k];
+						nd[j] += this.layers[l][j][k] * d[k];
 					}
 
-					nextdelta[j] = nextdelta[j] * f.derive(weighted[i][j]);
+					nd[j] = nd[j] * f.derive(u[l][j]);
 
-					for(int n=0, nl=units[i-1].size; n < nl; n++)
+					for(int i=0, I=units[hl].size; i < I; i++)
 					{
-						layers[i-1][n][j] = this.layers[i-1][n][j] - 0.5 * nextdelta[j]* output[i-1][n];
+						layers[hl][i][j] = this.layers[hl][i][j] - 0.5 * nd[j]* o[hl][i];
 					}
 				}
 
-				delta = nextdelta;
+				d = nd;
 			}
 
 			return new NN(units, layers);
