@@ -247,17 +247,17 @@ public class NN {
 	{
 		double[][][] layers = new double[this.layers.length][][];
 
-		for(int i=0, il=this.layers.length; i < il; i++)
+		for(int l=0, L=this.layers.length; l < L; l++)
 		{
-			layers[i] = new double[this.layers[i].length][];
+			layers[l] = new double[this.layers[l].length][];
 
-			for(int j=0, jl=this.layers[i].length; j < jl; j++)
+			for(int j=0, J=this.layers[l].length; j < J; j++)
 			{
-				layers[i][j] = new double[this.layers[i][j].length];
+				layers[l][j] = new double[this.layers[l][j].length];
 
-				for(int k=0, kl=this.layers[i][j].length; k < kl; k++)
+				for(int k=0, K=this.layers[l][j].length; k < K; k++)
 				{
-					layers[i][j][k] = this.layers[i][j][k];
+					layers[l][j][k] = this.layers[l][j][k];
 				}
 			}
 		}
