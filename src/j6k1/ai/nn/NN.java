@@ -191,7 +191,7 @@ public class NN {
 
 			for(int j=0, hl=units.length-2, l=units[hl+1].size, J=units[hl].size; j < J; j++)
 			{
-				layers[hl][j] = new double[l];
+				layers[hl][j] = new double[units[l].size];
 			}
 
 			for(int k=0,
