@@ -140,14 +140,14 @@ public class NN {
 
 			for(int k=1, K = units[ll].size; k < K; k++)
 			{
-				u[ll][k] = (o[ll][k] += layers[l][0][k]);
+				u[ll][k] += layers[l][0][k];
 			}
 
 			for(int j=1, J=units[l].size; j < J; j++)
 			{
 				for(int k=1, K = units[ll].size; k < K; k++)
 				{
-					u[ll][k] = (o[ll][k] += o[l][j] * layers[l][j][k]);
+					u[ll][k] += o[l][j] * layers[l][j][k];
 				}
 			}
 		}
@@ -155,19 +155,6 @@ public class NN {
 		double[] r = new double[units[units.length-1].size];
 
 		IActivateFunction f = units[units.length-1].f;
-
-		for(int k=1, l=units.length-2, ll=l+1, K = units[ll].size; k < K; k++)
-		{
-			u[ll][k] = (o[ll][k] += layers[l][0][k]);
-		}
-
-		for(int j=1, l=units.length-2, ll=l+1, J=units[l].size; j < J; j++)
-		{
-			for(int k=1, K = units[ll].size; k < K; k++)
-			{
-				u[ll][k] = o[ll][k] += (o[l][j] * layers[l][j][k]);
-			}
-		}
 
 		for(int j=0, l=units.length-1, J=units[units.length-1].size; j < J; j++)
 		{
@@ -182,7 +169,7 @@ public class NN {
 		return apply(input, (r, o, u) -> new DoubleArray(r)).arr;
 	}
 
-	public NN learn(int[] input, double[] t)
+	public NN learn(int[] input, double[] t, double a)
 	{
 		if(t.length != units[units.length-1].size)
 		{
@@ -216,7 +203,7 @@ public class NN {
 
 				for(int j=0, J=units[hl].size; j < J; j++)
 				{
-					layers[hl][j][k] = this.layers[hl][j][k] - 0.5 * d[k] * o[hl][j];
+					layers[hl][j][k] = this.layers[hl][j][k] - a * d[k] * o[hl][j];
 				}
 			}
 
@@ -245,7 +232,7 @@ public class NN {
 
 					for(int i=0, I=units[hl].size; i < I; i++)
 					{
-						layers[hl][i][j] = this.layers[hl][i][j] - 0.5 * nd[j]* o[hl][i];
+						layers[hl][i][j] = this.layers[hl][i][j] - a * nd[j]* o[hl][i];
 					}
 				}
 
