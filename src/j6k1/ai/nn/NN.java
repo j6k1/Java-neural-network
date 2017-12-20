@@ -118,7 +118,7 @@ public class NN {
 		{
 			for(int k=1, K=units[1].size; k < K; k++)
 			{
-				u[1][k] += input[j-1] * layers[0][j][k];
+				u[1][k] += (input[j-1] * layers[0][j][k]);
 			}
 		}
 
@@ -140,14 +140,14 @@ public class NN {
 
 			for(int k=1, K = units[ll].size; k < K; k++)
 			{
-				u[ll][k] = o[ll][k] += layers[l][0][k];
+				u[ll][k] = (o[ll][k] += layers[l][0][k]);
 			}
 
 			for(int j=1, J=units[l].size; j < J; j++)
 			{
 				for(int k=1, K = units[ll].size; k < K; k++)
 				{
-					u[ll][k] = o[ll][k] += o[l][j] * layers[l][j][k];
+					u[ll][k] = (o[ll][k] += o[l][j] * layers[l][j][k]);
 				}
 			}
 		}
@@ -155,6 +155,19 @@ public class NN {
 		double[] r = new double[units[units.length-1].size];
 
 		IActivateFunction f = units[units.length-1].f;
+
+		for(int k=1, l=units.length-2, ll=l+1, K = units[ll].size; k < K; k++)
+		{
+			u[ll][k] = (o[ll][k] += layers[l][0][k]);
+		}
+
+		for(int j=1, l=units.length-2, ll=l+1, J=units[l].size; j < J; j++)
+		{
+			for(int k=1, K = units[ll].size; k < K; k++)
+			{
+				u[ll][k] = o[ll][k] += (o[l][j] * layers[l][j][k]);
+			}
+		}
 
 		for(int j=0, l=units.length-1, J=units[units.length-1].size; j < J; j++)
 		{
@@ -189,9 +202,9 @@ public class NN {
 
 			IActivateFunction f = units[units.length-1].f;
 
-			for(int j=0, hl=units.length-2, l=units[hl+1].size, J=units[hl].size; j < J; j++)
+			for(int j=0, l=units.length-2, ll=l+1, J=units[l].size; j < J; j++)
 			{
-				layers[hl][j] = new double[units[l].size];
+				layers[l][j] = new double[units[ll].size];
 			}
 
 			for(int k=0,
@@ -225,7 +238,7 @@ public class NN {
 				{
 					for(int k=0, K=units[ll].size; k < K; k++)
 					{
-						nd[j] += this.layers[l][j][k] * d[k];
+						nd[j] += (this.layers[l][j][k] * d[k]);
 					}
 
 					nd[j] = nd[j] * f.derive(u[l][j]);
