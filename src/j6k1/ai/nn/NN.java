@@ -211,7 +211,7 @@ public class NN {
 			{
 				final int hl = l - 1;
 				final int ll = l + 1;
-
+				final int ks = l == units.length - 2 ? 0 : 1;
 				f = units[l].f;
 
 				double[] nd = new double[units[l].size];
@@ -221,9 +221,9 @@ public class NN {
 					layers[hl][i] = new double[units[l].size];
 				}
 
-				for(int j=0, J=units[l].size; j < J; j++)
+				for(int j=1, J=units[l].size; j < J; j++)
 				{
-					for(int k=0, K=units[ll].size; k < K; k++)
+					for(int k=ks, K=units[ll].size; k < K; k++)
 					{
 						nd[j] += (this.layers[l][j][k] * d[k]);
 					}
