@@ -23,9 +23,9 @@ public class NN {
 			double[][][] layers = new double[units.length - 1][][];
 
 			try {
-				for(int i=0; i < units.length - 1; i++)
+				for(int i=0; i < units.length; i++)
 				{
-					layers[i] = reader.readVec(units[i].size, units[i+1].size);
+					layers[i] = reader.readVec(units[i].size, units[i+1].size+1);
 				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -50,15 +50,15 @@ public class NN {
 		}
 		else
 		{
-			for(int i=0, il=this.layers.length; i < il; i++)
+			for(int i=0, I=this.layers.length; i < I; i++)
 			{
-				if(units[i].size != this.layers[i].length)
+				if(units[i].size+1 != this.layers[i].length)
 				{
 					throw new InvalidConfigurationException(
 							"The units count do not match. (correct size = " + units[i].size + ", size = " + this.layers[i].length + ")");
 				}
 
-				for(int j=0, jl=units[i].size; j < jl; j++)
+				for(int j=0, J=units[i].size+1; j < J; j++)
 				{
 					if(this.layers[i][j] == null)
 					{
@@ -67,7 +67,7 @@ public class NN {
 								j, i
 							));
 					}
-					else if(this.layers[i][j].length != units[i+1].size)
+					else if(i == I && this.layers[i][j].length != units[i+1].size)
 					{
 						throw new InvalidConfigurationException(
 							String.format(
@@ -89,7 +89,7 @@ public class NN {
 
 	private <T> T apply(int[] input, IAfterProcess<T> after)
 	{
-		if(input.length != units[0].size - 1)
+		if(input.length != units[0].size)
 		{
 			throw new InvalidStateException(
 				"The inputs to the input layer is invalid (the count of inputs must be the count of units -1)");
@@ -98,67 +98,62 @@ public class NN {
 		double[][] u = new double[units.length][];
 		double[][] o = new double[units.length][];
 
-		o[0] = new double[units[0].size];
+		o[0] = new double[units[0].size+1];
 
 		o[0][0] = 1.0;
 
-		for(int j=1, J=units[0].size; j < J; j++)
+		for(int j=1, J=units[0].size+1; j < J; j++)
 		{
 			o[0][j] = (double)input[j-1];
 		}
 
-		u[1] = new double[units[1].size];
+		u[1] = new double[units[1].size+1];
 
-		for(int k=1, K=units[1].size; k < K; k++)
+		for(int k=1, K=units[1].size+1; k < K; k++)
 		{
-			u[1][k] += layers[0][0][k];
-		}
-
-		for(int j=1, J=units[0].size; j < J; j++)
-		{
-			for(int k=1, K=units[1].size; k < K; k++)
+			for(int j=0, J=units[0].size; j < J; j++)
 			{
-				u[1][k] += (input[j-1] * layers[0][j][k]);
+				u[1][k] += (o[0][j] * layers[0][j][k-1]);
 			}
 		}
 
-		o[1] = new double[units[1].size];
+		o[1] = new double[units[1].size+1];
+
+		IActivateFunction f = units[1].f;
+
+		o[1][0] = 1.0;
+
+		for(int j=1, J = units[1].size+1; j < J; j++)
+		{
+			o[1][j] = f.apply(u[1][j]);
+		}
 
 		for(int l=1, L=units.length - 1; l < L; l++)
 		{
 			final int ll = l + 1;
 
-			u[ll] = new double[units[ll].size];
-			IActivateFunction f = units[l].f;
+			u[ll] = new double[units[ll].size+1];
+			f = units[l].f;
 
-			for(int j=0, J = units[l].size; j < J; j++)
+			o[ll] = new double[units[ll].size+1];
+
+			for(int k=1, K = units[ll].size+1; k < K; k++)
 			{
-				o[l][j] = f.apply(u[l][j]);
-			}
-
-			o[ll] = new double[units[ll].size];
-
-			for(int k=1, K = units[ll].size; k < K; k++)
-			{
-				u[ll][k] += layers[l][0][k];
-			}
-
-			for(int j=1, J=units[l].size; j < J; j++)
-			{
-				for(int k=1, K = units[ll].size; k < K; k++)
+				for(int j=0, J=units[l].size+1; j < J; j++)
 				{
-					u[ll][k] += o[l][j] * layers[l][j][k];
+					u[ll][k] += o[l][j] * layers[l][j][k-1];
 				}
+
+				o[ll][k] = f.apply(u[ll][k]);
+				o[ll][0] = 1.0;
 			}
 		}
 
 		double[] r = new double[units[units.length-1].size];
 
-		IActivateFunction f = units[units.length-1].f;
-
-		for(int j=0, l=units.length-1, J=units[units.length-1].size; j < J; j++)
+		for(int k=1, K = units[units.length-1].size+1, l=units.length-1; k < K; k++)
 		{
-			r[j] = o[l][j] = f.apply(u[l][j]);
+			r[k-1] = o[l][k];
 		}
 
 		return after.apply(r, o, u);
@@ -180,30 +175,30 @@ public class NN {
 		return apply(input, (r, o, u) -> {
 
 			double[][][] layers = new double[units.length-1][][];
-			double[] d = new double[units[units.length-1].size];
+			double[] d = new double[units[units.length-1].size+1];
 
 			for(int l=0, L = units.length-1; l < L; l++)
 			{
-				layers[l] = new double[units[l].size][];
+				layers[l] = new double[units[l].size+1][];
 			}
 
 			IActivateFunction f = units[units.length-1].f;
 
-			for(int j=0, l=units.length-2, ll=l+1, J=units[l].size; j < J; j++)
+			for(int j=0, l=units.length-2, ll=l+1, J=units[l].size+1; j < J; j++)
 			{
 				layers[l][j] = new double[units[ll].size];
 			}
 
-			for(int k=0,
+			for(int k=1,
 					hl=units.length-2,
 					l=units.length-1,
-					K=units[l].size; k < K; k++)
+					K=units[l].size+1; k < K; k++)
 			{
-				d[k] = (r[k] - t[k]) * f.derive(u[l][k]);
+				d[k] = (r[k-1] - t[k-1]) * f.derive(u[l][k]);
 
-				for(int j=0, J=units[hl].size; j < J; j++)
+				for(int j=0, J=units[hl].size+1; j < J; j++)
 				{
-					layers[hl][j][k] = this.layers[hl][j][k] - a * d[k] * o[hl][j];
+					layers[hl][j][k-1] = this.layers[hl][j][k-1] - a * d[k] * o[hl][j];
 				}
 			}
 
@@ -211,28 +206,27 @@ public class NN {
 			{
 				final int hl = l - 1;
 				final int ll = l + 1;
-				final int ks = l == units.length - 2 ? 0 : 1;
 				f = units[l].f;
 
-				double[] nd = new double[units[l].size];
+				double[] nd = new double[units[l].size+1];
 
-				for(int i=0, I=units[hl].size; i < I; i++)
+				for(int i=0, I=units[hl].size+1; i < I; i++)
 				{
-					layers[hl][i] = new double[units[l].size];
+					layers[hl][i] = new double[units[l].size+1];
 				}
 
-				for(int j=1, J=units[l].size; j < J; j++)
+				for(int j=1, J=units[l].size+1; j < J; j++)
 				{
-					for(int k=ks, K=units[ll].size; k < K; k++)
+					for(int k=1, K=units[ll].size+1; k < K; k++)
 					{
-						nd[j] += (this.layers[l][j][k] * d[k]);
+						nd[j] += (this.layers[l][j][k-1] * d[k]);
 					}
 
 					nd[j] = nd[j] * f.derive(u[l][j]);
 
-					for(int i=0, I=units[hl].size; i < I; i++)
+					for(int i=0, I=units[hl].size+1; i < I; i++)
 					{
-						layers[hl][i][j] = this.layers[hl][i][j] - a * nd[j]* o[hl][i];
+						layers[hl][i][j-1] = this.layers[hl][i][j-1] - a * nd[j]* o[hl][i];
 					}
 				}
 
