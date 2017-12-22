@@ -111,7 +111,7 @@ public class NN {
 
 		for(int k=1, K=units[1].size+1; k < K; k++)
 		{
-			for(int j=0, J=units[0].size; j < J; j++)
+			for(int j=0, J=units[0].size+1; j < J; j++)
 			{
 				u[1][k] += (o[0][j] * layers[0][j][k-1]);
 			}
