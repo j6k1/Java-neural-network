@@ -92,7 +92,7 @@ public class NN {
 		if(input.length != units[0].size)
 		{
 			throw new InvalidStateException(
-				"The inputs to the input layer is invalid (the count of inputs must be the count of units -1)");
+				"The inputs to the input layer is invalid (the count of inputs must be the count of units)");
 		}
 
 		double[][] u = new double[units.length][];
