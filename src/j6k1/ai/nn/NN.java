@@ -55,7 +55,7 @@ public class NN {
 				if(units[i].size+1 != this.layers[i].length)
 				{
 					throw new InvalidConfigurationException(
-							"The units count do not match. (correct size = " + (units[i].size + 1) + ", size = " + this.layers[i].length + ")");
+							"The number of units in Layer " + i + " do not match. (correct size = " + (units[i].size + 1) + ", size = " + this.layers[i].length + ")");
 				}
 
 				for(int j=0, J=units[i].size+1; j < J; j++)
