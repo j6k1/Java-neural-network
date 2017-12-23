@@ -2,7 +2,7 @@
 
 ## 使い方
 
-```
+```java:sample
 final int width = 4;
 final int depth = 4;
 NN nn = new NN(new NNUnit[] {
