@@ -3,69 +3,114 @@
 ## 使い方
 
 ```
+final int width = 4;
+final int depth = 4;
 NN nn = new NN(new NNUnit[] {
-	new NNUnit(193),
-	new NNUnit(193, new FReLU()),
-	new NNUnit(193, new FReLU()),
-	new NNUnit(4, new FTanh()),
-	new NNUnit(1, new FTanh())
-}, new TextFileInputReader(new File("data/nn.txt")), () -> {
-	double[] initials = { 0.0001, 0.001 };
-	int[] units = { 193, 193, 193 };
-	double[][][] layers = new double[4][][];
+		new NNUnit(2),
+		new NNUnit(width, new FReLU()),
+		new NNUnit(width, new FReLU()),
+		new NNUnit(1, new FTanh()),
+	}, new TextFileInputReader(new File("data/nn.txt")), () -> {
+		double[][][] layers = new double[depth-1][][];
 
-	for(int i=0, l=units.length-1; i < l; i++)
-	{
-		layers[i] = new double[units[i]][];
+		Random r = new Random();
 
-		for(int j=0; j < units[i+1]; j++)
+		layers[0] = new double[3][];
+
+		layers[0][0] = new double[width];
+
+		for(int k=0; k < width; k++)
 		{
-			double[] weights = new double[units[i]];
-			Arrays.fill(weights, initials[i]);
-			layers[i][j] = weights;
+			layers[0][0][k] = 0.0;
 		}
-	}
 
-	int runits[] = { 193, 4, 1 };
-
-	Random r = new Random();
-
-	for(int i=2, l=4; i < l; i++)
-	{
-		layers[i] = new double[runits[i-2]][];
-
-		for(int j=0, ll=runits[i-2]; j < ll; j++)
+		for(int j=1; j < 3; j++)
 		{
-			layers[i][j] = new double[runits[i-1]];
+			layers[0][j] = new double[width];
 
-			for(int k=0, lll=runits[i-1]; k < lll; k++)
+			for(int k=0; k < width; k++)
 			{
-				layers[i][j][k] = (r.nextInt(100) + 1) * 0.1;
+				layers[0][j][k] = r.nextDouble() * (r.nextInt(2) == 1 ? 1.0 : -1.0);
 			}
 		}
-	}
 
-	return layers;
-});
+		for(int i=1; i < depth-2; i++)
+		{
+			layers[i] = new double[width+1][];
+
+			layers[i][0] = new double[width];
+
+			for(int k=0; k < width; k++)
+			{
+				layers[i][0][k] = 0.0;
+			}
+
+			for(int j=1; j < width+1; j++)
+			{
+				layers[i][j] = new double[width];
+
+				for(int k=0; k < width; k++)
+				{
+					layers[i][j][k] = r.nextDouble() * (r.nextInt(2) == 1 ? 1.0 : -1.0);
+				}
+			}
+		}
+
+		layers[depth-2] = new double[width+1][];
+
+		layers[depth-2][0] = new double[1];
+
+		for(int k=0; k < 1; k++)
+		{
+			layers[depth-2][0][k] = 0.0;
+		}
+
+		for(int j=1; j < width+1; j++)
+		{
+			layers[depth-2][j] = new double[1];
+
+			for(int k=0; k < 1; k++)
+			{
+				layers[depth-2][j][k] = r.nextDouble() * (r.nextInt(2) == 1 ? 1.0 : -1.0);
+			}
+		}
+
+		return layers;
+	});
+
+Pair[] pairs = new Pair[] {
+	new Pair(new int[] { 0, 0 }, new int[] { 0 }),
+	new Pair(new int[] { 0, 1 }, new int[] { 1 }),
+	new Pair(new int[] { 1, 0 }, new int[] { 1 }),
+	new Pair(new int[] { 1, 1 }, new int[] { 0 }),
+};
+
+(new PersistenceWithTextFile(new File("data/nn.initial.txt"))).save(nn);
 
 Random r = new Random();
 
-int[] input = new int[192];
-
-for(int i=0; i < 192; i++)
+for(int i=0; i < 10000; i++)
 {
-	input[i] = r.nextInt(2);
+	//int ii = r.nextInt(4);
+	for(int ii=0; ii < 4; ii++)
+	{
+		double[] nnanswer = nn.solve(pairs[ii].input);
+
+		nn = nn.learn(pairs[ii].input,
+						Arrays.stream(pairs[ii].answer)
+							.mapToDouble(m -> (double)m).toArray(), 0.5);
+	}
 }
 
-long start = System.currentTimeMillis();
-
-for(int i=0; i < 10; i++)
+for(Pair p: pairs)
 {
-	double[] result = nn.solve(input);
-
-	System.out.println(result[0]);
-	nn = nn.learn(input, new double[] { 1.0 });
+	System.out.println("correct answer = " + String.join(", ", Arrays.stream(p.answer)
+												.mapToObj(m -> Integer.toString(m))
+												.toArray(String[]::new)));
+	double[] nnanswer = nn.solve(p.input);
+	System.out.println("nn answer = " +
+			String.join(", ", Arrays.stream(nnanswer)
+					.mapToObj(m -> Double.toString(m))
+					.toArray(String[]::new)));
 }
-
-long end = System.currentTimeMillis();
 ```
