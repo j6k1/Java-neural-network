@@ -23,9 +23,9 @@ public class NN {
 			double[][][] layers = new double[units.length - 1][][];
 
 			try {
-				for(int i=0; i < units.length; i++)
+				for(int i=0; i < units.length-1; i++)
 				{
-					layers[i] = reader.readVec(units[i].size, units[i+1].size+1);
+					layers[i] = reader.readVec(units[i].size+1, units[i+1].size);
 				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);

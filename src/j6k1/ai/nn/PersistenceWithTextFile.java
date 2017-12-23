@@ -24,11 +24,11 @@ public class PersistenceWithTextFile implements IPersistence {
 
 			writer.write("#Java NN config start.\n");
 
-			for(int i=0, il=layers.length; i < il; i++)
+			for(int i=0, L=layers.length; i < L; i++)
 			{
 				writer.write("#layer: " + i + "\n");
 
-				for(int j=0, jl=layers[i].length; j < jl; j++)
+				for(int j=0, J=layers[i].length; j < J; j++)
 				{
 					writer.write(
 						String.join(" ", Arrays

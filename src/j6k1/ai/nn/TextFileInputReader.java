@@ -68,8 +68,15 @@ public class TextFileInputReader implements IInputReader {
 			String l;
 
 			do {
-				l = reader.readLine().trim();
+				l = reader.readLine();
+				if(l == null) break;
+				else l = l.trim();
 			} while(l.isEmpty() || l.startsWith("#"));
+
+			if(l == null) {
+				throw new InvalidConfigurationException(
+						"The end of the file was reached while reading the input data file.");
+			}
 
 			line = l.split(" ");
 			index = 0;
